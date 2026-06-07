@@ -11,5 +11,5 @@ if [ "${RAILWAY_RUN_SEED:-false}" = "true" ]; then
 fi
 
 echo "Starting API..."
-cd /app/apps/api
-exec node dist/main.js
+cd /app
+exec pnpm --filter @travel/api start
