@@ -23,6 +23,7 @@ export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [filter, setFilter] = useState("");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   function load() {
     const token = getToken();
@@ -30,6 +31,7 @@ export default function AdminBookingsPage() {
     const params = filter ? `?status=${filter}` : "";
     api<Booking[]>(`/admin/bookings${params}`, { token })
       .then(setBookings)
+      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load bookings"))
       .finally(() => setLoading(false));
   }
 
@@ -48,8 +50,12 @@ export default function AdminBookingsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Bookings</h2>
-      <p className="mt-1 text-gray-600">Manage all customer and agent bookings.</p>
+      <h2 className="type-page-title">Bookings</h2>
+      <p className="type-lead mt-2">Manage all customer and agent bookings.</p>
+
+      {error && (
+        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
+      )}
 
       <div className="mt-4 flex gap-2">
         <select

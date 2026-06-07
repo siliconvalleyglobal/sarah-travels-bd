@@ -18,6 +18,7 @@ const supplierTypes = ["AIRLINE", "CONSOLIDATOR", "HOTEL", "VISA_PARTNER"];
 
 export default function AdminSuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [error, setError] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     name: "", type: "AIRLINE", code: "", contactEmail: "", contactPhone: "",
@@ -26,7 +27,9 @@ export default function AdminSuppliersPage() {
   function load() {
     const token = getToken();
     if (!token) { window.location.href = "/login"; return; }
-    api<Supplier[]>("/admin/suppliers", { token }).then(setSuppliers);
+    api<Supplier[]>("/admin/suppliers", { token })
+      .then(setSuppliers)
+      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load suppliers"));
   }
 
   useEffect(() => { load(); }, []);
@@ -60,8 +63,8 @@ export default function AdminSuppliersPage() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Suppliers</h2>
-          <p className="mt-1 text-gray-600">Manage airlines, consolidators, and visa partners.</p>
+          <h2 className="type-page-title">Suppliers</h2>
+          <p className="type-lead mt-2">Manage airlines, consolidators, and visa partners.</p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -70,6 +73,10 @@ export default function AdminSuppliersPage() {
           {showForm ? "Cancel" : "Add Supplier"}
         </button>
       </div>
+
+      {error && (
+        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
+      )}
 
       {showForm && (
         <form onSubmit={handleCreate} className="mt-6 rounded-xl border bg-white p-6 shadow-sm">

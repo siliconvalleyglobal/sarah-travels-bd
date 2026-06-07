@@ -2,6 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { LanguageProvider } from "@/components/LanguageProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -12,8 +13,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableColorScheme={false}
       disableTransitionOnChange
     >
-      {children}
-      <Toaster richColors position="top-right" />
+      <LanguageProvider>
+        {children}
+        <Toaster richColors position="top-right" />
+      </LanguageProvider>
     </ThemeProvider>
   );
 }

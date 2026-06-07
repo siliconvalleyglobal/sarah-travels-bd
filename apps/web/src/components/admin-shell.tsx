@@ -1,65 +1,85 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { clearToken } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import {
+  Building2,
+  Calculator,
+  LayoutDashboard,
+  Plane,
+  Users,
+} from "lucide-react";
+import { EnterpriseShell } from "@/components/enterprise-shell";
+import { getToken, getTokenRole, isAdminRole, redirectToLogin } from "@/lib/auth";
 
 const nav = [
-  { href: "/admin", label: "Dashboard", exact: true },
-  { href: "/admin/bookings", label: "Bookings" },
-  { href: "/admin/agents", label: "Agents" },
-  { href: "/admin/suppliers", label: "Suppliers" },
-  { href: "/admin/accounting", label: "Accounting" },
+  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/bookings", label: "Bookings", icon: Plane },
+  { href: "/admin/agents", label: "Agents", icon: Users },
+  { href: "/admin/suppliers", label: "Suppliers", icon: Building2 },
+  { href: "/admin/accounting", label: "Accounting", icon: Calculator },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [ready, setReady] = useState(false);
+  const [denied, setDenied] = useState(false);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      redirectToLogin(pathname);
+      return;
+    }
+    if (!isAdminRole(getTokenRole())) {
+      setDenied(true);
+      return;
+    }
+    setReady(true);
+  }, [pathname]);
+
+  if (denied) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f0f4f8] px-4">
+        <div className="max-w-md rounded-xl border bg-white p-8 text-center shadow-sm">
+          <h1 className="text-xl font-bold text-brand-navy">Admin access required</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Sign in with <span className="font-medium">admin@travel.com</span> / password123
+          </p>
+          <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <Link
+              href={`/login?redirect=${encodeURIComponent(pathname)}`}
+              className="rounded-lg bg-brand-navy px-4 py-2 text-sm font-medium text-white"
+            >
+              Sign in as admin
+            </Link>
+            <Link href="/account" className="rounded-lg border px-4 py-2 text-sm text-slate-700">
+              Client portal
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f0f4f8] text-sm text-slate-500">
+        Loading workspace…
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="border-b bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="font-bold text-brand-700">Travel</Link>
-            <span className="text-gray-400">/</span>
-            <span className="font-semibold">Admin</span>
-          </div>
-          <button
-            onClick={() => { clearToken(); window.location.href = "/login"; }}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-
-      <div className="mx-auto flex max-w-7xl gap-8 px-6 py-8">
-        <aside className="hidden w-48 shrink-0 md:block">
-          <nav className="space-y-1">
-            {nav.map((item) => {
-              const active = item.exact
-                ? pathname === item.href
-                : pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "block rounded-lg px-3 py-2 text-sm font-medium",
-                    active
-                      ? "bg-brand-600 text-white"
-                      : "text-gray-700 hover:bg-gray-200",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
-        <main className="min-w-0 flex-1">{children}</main>
-      </div>
-    </div>
+    <EnterpriseShell
+      portal="admin"
+      portalLabel="Enterprise Admin"
+      nav={nav}
+      userName="Admin User"
+      userEmail="admin@travel.com"
+    >
+      {children}
+    </EnterpriseShell>
   );
 }

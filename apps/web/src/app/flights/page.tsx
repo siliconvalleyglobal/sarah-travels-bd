@@ -8,10 +8,14 @@ import { getToken } from "@/lib/auth";
 import { bookFlight, payFlightBooking } from "@/lib/flights-api";
 import { formatCurrency } from "@/lib/utils";
 import { 
-  ArrowLeft, Plane, Shield, CheckCircle, ChevronRight, SlidersHorizontal, Calendar,
+  Plane, Shield, CheckCircle, ChevronRight, SlidersHorizontal, Calendar,
   Loader2, X,
 } from "lucide-react";
-import { SarahLogo } from "@/components/SarahLogo";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { PageHero } from "@/components/PageHero";
+import { GsapRoot } from "@/components/marketing/GsapRoot";
+import { travelImages } from "@/lib/travelImages";
 
 function formatFlightTime(t: string): string {
   if (t.includes("T") || /^\d{4}-\d{2}-\d{2}/.test(t)) {
@@ -306,23 +310,20 @@ export default function FlightsPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      {/* Header */}
-      <header className="border-b border-white/10 bg-brand-navy text-white py-4 px-6 sticky top-0 z-40 shadow-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-1 text-white hover:text-brand-gold font-bold text-sm transition">
-              <ArrowLeft className="h-4 w-4" /> Home
-            </Link>
-            <span className="text-white/20">|</span>
-            <span className="text-sm font-semibold text-white/90">Air Ticket Search Engine</span>
-          </div>
-          <SarahLogo className="scale-90" iconOnly />
-        </div>
-      </header>
+    <GsapRoot className="min-h-screen bg-slate-50 flex flex-col font-sans">
+      <SiteHeader variant="compact" />
+
+      <PageHero
+        compact
+        icon={Plane}
+        badge="Live GDS Search"
+        title="Air Ticket Search Engine"
+        subtitle="Compare Saudia, Biman, Emirates & more — NBR AIT 0.3% auto-calculated on every booking."
+        backgroundImage={travelImages.flights}
+      />
 
       {/* Main body */}
-      <div className="mx-auto max-w-7xl w-full px-4 py-8 sm:px-6 flex-1 flex flex-col gap-6">
+      <div className="st-reveal mx-auto max-w-7xl w-full px-4 py-8 sm:px-6 flex-1 flex flex-col gap-6">
         
         {/* Search Console Card */}
         <form
@@ -907,6 +908,8 @@ export default function FlightsPage() {
           </div>
         </div>
       )}
-    </div>
+
+      <SiteFooter />
+    </GsapRoot>
   );
 }

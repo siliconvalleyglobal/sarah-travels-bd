@@ -13,8 +13,8 @@ interface StackedImageCardProps {
 export function StackedImageCard({ src, alt, className, heroAnim, priority }: StackedImageCardProps) {
   return (
     <div className={`relative ${heroAnim ? "st-hero-image-anim" : ""} ${className ?? ""}`}>
-      <div className="absolute -bottom-3 -left-3 h-full w-full rounded-3xl bg-brand-gold/80 -z-10" />
-      <div className="relative overflow-hidden rounded-3xl border-2 border-white/20 shadow-elevated ring-1 ring-white/10">
+      <div className="absolute -bottom-2 -left-2 h-full w-full rounded-2xl bg-brand-gold/50 -z-10 sm:-bottom-3 sm:-left-3 sm:rounded-3xl" />
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200/60 shadow-elevated ring-1 ring-white/40 sm:rounded-3xl">
         <div className="relative aspect-[4/3] w-full">
           <Image
             src={src}

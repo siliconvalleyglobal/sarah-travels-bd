@@ -30,12 +30,15 @@ export default function LoginPage() {
         { method: "POST", body: JSON.stringify({ email, password }) },
       );
       setToken(data.accessToken);
-      if (data.user.role === "AGENT" || data.user.role === "SUB_AGENT") {
+      const redirect = new URLSearchParams(window.location.search).get("redirect");
+      if (redirect?.startsWith("/admin") && (data.user.role === "ADMIN" || data.user.role === "SUPER_ADMIN")) {
+        router.push(redirect);
+      } else if (data.user.role === "AGENT" || data.user.role === "SUB_AGENT") {
         router.push("/agent/dashboard");
       } else if (data.user.role === "ADMIN" || data.user.role === "SUPER_ADMIN") {
         router.push("/admin");
       } else {
-        router.push("/account/bookings");
+        router.push("/account");
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
@@ -81,7 +84,7 @@ export default function LoginPage() {
             ))}
           </div>
         </motion.div>
-        <p className="text-xs text-white/30">Demo: customer@travel.com / password123</p>
+        <p className="text-xs text-white/30">Demo: customer@travel.com · admin@travel.com · password123</p>
         </div>
       </div>
 
@@ -129,7 +132,7 @@ export default function LoginPage() {
           </div>
 
           <p className="mt-4 text-center text-xs text-slate-400 lg:hidden">
-            Demo: customer@travel.com / password123
+            Demo: customer@travel.com · admin@travel.com · password123
           </p>
         </motion.div>
       </div>

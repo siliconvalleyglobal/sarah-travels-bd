@@ -63,13 +63,15 @@ export const DESTINATIONS = [
   { id: "bangkok", name: "Bangkok", country: "Thailand", hotels: 1100, icon: "🛕" },
 ];
 
+import { travelImages } from "./travelImages";
+
 const IMG = {
-  mecca: "https://images.unsplash.com/photo-1591604129939-f1efa4f849f1?w=800&q=80",
-  medina: "https://images.unsplash.com/photo-1564760055775-d63b17a55c44?w=800&q=80",
-  dubai: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=800&q=80",
-  dhaka: "https://images.unsplash.com/photo-1583391733956-3750e0ff4ee8?w=800&q=80",
-  coxs: "https://images.unsplash.com/photo-1559120680-6a0f4941f3c9?w=800&q=80",
-  luxury: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80",
+  mecca: travelImages.makkah,
+  medina: travelImages.makkah,
+  dubai: travelImages.dubai,
+  dhaka: travelImages.dhaka,
+  coxs: travelImages.coxsBazar,
+  luxury: travelImages.hotels,
   room: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
   pool: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=800&q=80",
 };

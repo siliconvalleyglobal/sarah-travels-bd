@@ -25,26 +25,34 @@ export default function AdminAccountingPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [ledger, setLedger] = useState<LedgerEntry[]>([]);
   const [pnl, setPnl] = useState<{ revenue: number; expenses: number; netProfit: number } | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const token = getToken();
     if (!token) { window.location.href = "/login"; return; }
 
-    api<Account[]>("/accounting/accounts", { token }).then(setAccounts);
-    api<LedgerEntry[]>("/accounting/ledger", { token }).then(setLedger);
+    const handleError = (e: unknown) =>
+      setError(e instanceof Error ? e.message : "Failed to load accounting data");
+
+    api<Account[]>("/accounting/accounts", { token }).then(setAccounts).catch(handleError);
+    api<LedgerEntry[]>("/accounting/ledger", { token }).then(setLedger).catch(handleError);
 
     const from = new Date(new Date().getFullYear(), 0, 1).toISOString().split("T")[0];
     const to = new Date().toISOString().split("T")[0];
     api<{ revenue: number; expenses: number; netProfit: number }>(
       `/accounting/profit-loss?from=${from}&to=${to}`,
       { token },
-    ).then(setPnl);
+    ).then(setPnl).catch(handleError);
   }, []);
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Accounting</h2>
-      <p className="mt-1 text-gray-600">Chart of accounts, ledger, and profit & loss.</p>
+      <h2 className="type-page-title">Accounting</h2>
+      <p className="type-lead mt-2">Chart of accounts, ledger, and profit & loss.</p>
+
+      {error && (
+        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
+      )}
 
       {pnl && (
         <div className="mt-6 grid gap-4 sm:grid-cols-3">

@@ -4,8 +4,19 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
         display: ["var(--font-display)", "var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      fontSize: {
+        "2xs": ["0.6875rem", { lineHeight: "1rem", letterSpacing: "0.04em" }],
+        caption: ["0.75rem", { lineHeight: "1.125rem" }],
+        body: ["0.9375rem", { lineHeight: "1.6" }],
+        "body-lg": ["1.0625rem", { lineHeight: "1.65" }],
+        "title-sm": ["1.125rem", { lineHeight: "1.4", letterSpacing: "-0.015em" }],
+        "title-md": ["1.375rem", { lineHeight: "1.35", letterSpacing: "-0.02em" }],
+        "title-lg": ["1.625rem", { lineHeight: "1.25", letterSpacing: "-0.025em" }],
+        "title-xl": ["2rem", { lineHeight: "1.2", letterSpacing: "-0.03em" }],
       },
       colors: {
         brand: {

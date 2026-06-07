@@ -1,8 +1,13 @@
 "use client";
 
 import { useState, use, useMemo, useCallback, useEffect } from "react";
-import { Map, List, ChevronDown, Sparkles, TrendingUp, Loader2 } from "lucide-react";
+import { Map, List, ChevronDown, Sparkles, TrendingUp, Loader2, MapPin } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { PageHero } from "@/components/PageHero";
+import { GsapRoot } from "@/components/marketing/GsapRoot";
+import { StaggerGrid, StaggerItem } from "@/components/AnimatedSection";
+import { travelImages } from "@/lib/travelImages";
 import { HotelSearchBar } from "@/components/HotelSearchBar";
 import { HotelCard } from "@/components/HotelCard";
 import { HotelFilters, DEFAULT_FILTERS, type HotelFilterState } from "@/components/HotelFilters";
@@ -112,8 +117,17 @@ export default function HotelsSearchPage({
   const dealCount = baseHotels.filter(h => h.deal).length;
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+    <GsapRoot className="min-h-screen bg-slate-100 flex flex-col font-sans">
       <SiteHeader variant="compact" />
+
+      <PageHero
+        compact
+        icon={MapPin}
+        badge="2M+ Properties"
+        title={`Hotels in ${cityQuery}`}
+        subtitle="Sarah Price Guarantee · Free cancellation on selected stays · Agoda, Hotelbeds & Ratehawk inventory."
+        backgroundImage={travelImages.hotels}
+      />
 
       {/* Sticky search bar */}
       <div className="bg-white border-b border-slate-200 shadow-sm sticky top-[52px] z-40">
@@ -228,9 +242,13 @@ export default function HotelsSearchPage({
                 </button>
               </div>
             ) : (
-              filteredHotels.map(hotel => (
-                <HotelCard key={hotel.id} hotel={hotel} nights={nights} searchParams={searchParamsStr} />
-              ))
+              <StaggerGrid className="space-y-4">
+                {filteredHotels.map(hotel => (
+                  <StaggerItem key={hotel.id}>
+                    <HotelCard hotel={hotel} nights={nights} searchParams={searchParamsStr} />
+                  </StaggerItem>
+                ))}
+              </StaggerGrid>
             )}
           </div>
         </div>
@@ -253,7 +271,9 @@ export default function HotelsSearchPage({
           </div>
         </div>
       </div>
-    </div>
+
+      <SiteFooter />
+    </GsapRoot>
   );
 }
 
@@ -263,7 +283,7 @@ function MapView({ hotels, city }: { hotels: Hotel[]; city: string }) {
       <div className="relative h-[500px] bg-slate-200">
         <div
           className="absolute inset-0 bg-cover bg-center opacity-60"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&q=80')" }}
+          style={{ backgroundImage: `url('${travelImages.worldMap}')` }}
         />
         <div className="absolute inset-0 bg-brand-navy/20" />
         <div className="absolute top-4 left-4 bg-white/95 backdrop-blur rounded-xl px-4 py-2 shadow-lg">

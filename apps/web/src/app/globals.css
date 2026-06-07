@@ -4,6 +4,14 @@
 @import "shadcn/tailwind.css";
 
 @layer base {
+  html[lang="bn"] body {
+    font-family: var(--font-bengali), var(--font-inter), system-ui, sans-serif;
+  }
+
+  html[lang="bn"] .font-display {
+    font-family: var(--font-bengali), var(--font-display), var(--font-inter), system-ui, sans-serif;
+  }
+
   :root {
     --brand-navy: #02132f;
     --brand-gold: #d4af37;
@@ -46,21 +54,31 @@
 
   html {
     scroll-behavior: smooth;
-    @apply font-sans;
+    @apply font-sans text-body;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    @apply antialiased selection:bg-brand-navy selection:text-white;
+    @apply selection:bg-brand-navy selection:text-white;
     background-color: var(--background);
     color: var(--foreground);
   }
 
-  h1, h2, h3, h4 {
-    @apply font-display tracking-tight;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight text-brand-navy;
   }
+
+  h1 { @apply text-title-lg sm:text-title-xl; }
+  h2 { @apply text-title-md sm:text-title-lg; }
+  h3 { @apply text-title-sm; }
+  h4 { @apply text-body-lg font-semibold; }
+
   .theme {
-    --font-heading: var(--font-sans);
-    --font-sans: var(--font-sans);
+    --font-heading: var(--font-display);
+    --font-sans: var(--font-inter);
   }
   .dark {
     --background: oklch(0.145 0 0);
@@ -136,15 +154,187 @@
   }
 
   .section-title {
-    @apply font-display text-3xl font-extrabold tracking-tight text-brand-navy sm:text-4xl;
+    @apply font-display text-title-lg font-extrabold tracking-tight text-brand-navy sm:text-[2.25rem] sm:leading-[1.15];
+  }
+
+  /* Agoda-style booking widget typography (Inter, larger readable scale) */
+  .booking-widget {
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  html[lang="bn"] .booking-widget {
+    font-family: var(--font-bengali), var(--font-inter), system-ui, sans-serif;
+  }
+
+  .booking-hero-title {
+    @apply font-sans text-[1.875rem] font-bold leading-tight tracking-tight text-[#1a1a1a] sm:text-[2.25rem] lg:text-[2.5rem];
+  }
+
+  html[lang="bn"] .booking-hero-title {
+    font-family: var(--font-bengali), var(--font-inter), system-ui, sans-serif;
+  }
+
+  /* Enterprise dashboard typography — fixed scale, isolated from marketing/booking */
+  .enterprise-portal {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+
+  .enterprise-portal .type-page-title {
+    @apply font-display font-bold leading-tight tracking-tight text-brand-navy;
+    font-size: 1.625rem;
+  }
+
+  @media (min-width: 640px) {
+    .enterprise-portal .type-page-title {
+      font-size: 2rem;
+    }
+  }
+
+  .enterprise-portal .type-section-title {
+    @apply font-display font-semibold leading-snug tracking-tight text-brand-navy;
+    font-size: 1.125rem;
+  }
+
+  .enterprise-portal .type-lead {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    @apply text-slate-500;
+  }
+
+  .enterprise-portal .type-label {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.08em;
+    @apply font-semibold uppercase text-slate-500;
+  }
+
+  .enterprise-portal .type-caption {
+    font-size: 0.75rem;
+    line-height: 1.125rem;
+    @apply text-slate-400;
+  }
+
+  .enterprise-portal .type-body {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    @apply text-slate-700;
+  }
+
+  .enterprise-portal .type-kpi-value {
+    @apply font-display font-bold leading-none tracking-tight text-brand-navy tabular-nums;
+    font-size: 1.75rem;
+  }
+
+  @media (min-width: 640px) {
+    .enterprise-portal .type-kpi-value {
+      font-size: 1.875rem;
+    }
+  }
+
+  .enterprise-portal .type-mono {
+    @apply font-mono font-medium tracking-tight text-brand-navy;
+    font-size: 0.8125rem;
+  }
+
+  .enterprise-portal .type-badge {
+    font-size: 0.6875rem;
+    line-height: 1rem;
+    letter-spacing: 0.1em;
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 font-bold uppercase;
+  }
+
+  .enterprise-portal.enterprise-surface,
+  .enterprise-portal .enterprise-surface {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    @apply text-slate-700;
+  }
+
+  /* Legacy aliases (non-portal pages) */
+  .type-page-title {
+    @apply font-display text-title-lg font-bold leading-tight tracking-tight text-brand-navy sm:text-title-xl;
+  }
+
+  .type-section-title {
+    @apply font-display text-title-sm font-semibold leading-snug tracking-tight text-brand-navy;
+  }
+
+  .type-lead {
+    @apply text-body leading-relaxed text-slate-500;
+  }
+
+  .type-label {
+    @apply text-2xs font-semibold uppercase tracking-[0.08em] text-slate-500;
+  }
+
+  .type-caption {
+    @apply text-caption leading-snug text-slate-400;
+  }
+
+  .type-body {
+    @apply text-body leading-relaxed text-slate-700;
+  }
+
+  .type-kpi-value {
+    @apply font-display text-[1.75rem] font-bold leading-none tracking-tight text-brand-navy tabular-nums sm:text-[1.875rem];
+  }
+
+  .type-mono {
+    @apply font-mono text-[0.8125rem] font-medium tracking-tight text-brand-navy;
+  }
+
+  .type-badge {
+    @apply inline-flex items-center rounded-full border px-2.5 py-0.5 text-2xs font-bold uppercase tracking-[0.1em];
+  }
+
+  .enterprise-surface {
+    @apply text-body leading-relaxed text-slate-700;
+  }
+
+  .enterprise-card {
+    @apply rounded-xl border border-slate-200/80 bg-white shadow-sm;
+  }
+
+  .enterprise-portal .enterprise-table th {
+    font-size: 0.6875rem;
+    @apply px-5 py-3 text-left font-bold uppercase tracking-[0.08em] text-slate-500;
+  }
+
+  .enterprise-portal .enterprise-table td {
+    font-size: 0.9375rem;
+    @apply px-5 py-3.5 text-slate-700 align-middle;
+  }
+
+  .enterprise-table th {
+    @apply px-5 py-3 text-left text-2xs font-bold uppercase tracking-[0.08em] text-slate-500;
+  }
+
+  .enterprise-table td {
+    @apply px-5 py-3.5 text-body text-slate-700 align-middle;
+  }
+
+  .btn-enterprise {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-body font-semibold transition-colors;
+  }
+
+  .btn-enterprise-primary {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-body font-semibold transition-colors bg-brand-navy text-white shadow-sm hover:bg-brand-navy-light;
+  }
+
+  .btn-enterprise-secondary {
+    @apply inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-body font-semibold transition-colors border border-slate-200 bg-white text-brand-navy hover:border-slate-300 hover:bg-slate-50;
   }
 
   .gradient-text {
     @apply bg-gradient-to-r from-brand-gold via-brand-gold-light to-brand-gold bg-clip-text text-transparent;
   }
 
-  .agoda-hero {
-    background: linear-gradient(180deg, #e8f4fc 0%, #f0f7fd 55%, #f8fafc 100%);
+  .sarah-hero {
+    background:
+      linear-gradient(180deg, rgba(232, 244, 252, 0.92) 0%, rgba(240, 247, 253, 0.88) 55%, #f8fafc 100%),
+      url("https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1600&q=60") center / cover no-repeat;
   }
 
   /* Ensure booking card stays visible even if GSAP hasn't run yet */

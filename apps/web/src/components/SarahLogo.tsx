@@ -12,11 +12,11 @@ export function SarahLogo({ className = "h-8 w-auto", iconOnly = false }: SarahL
       <LogoMark className="h-7 w-7 shrink-0" wingFill="#D4AF37" bodyFill="currentColor" />
       
       {!iconOnly && (
-        <span className="text-xl font-black tracking-tight flex flex-col leading-none text-left">
-          <span className="text-white flex items-center font-sans tracking-wide">
+        <span className="flex flex-col leading-none text-left">
+          <span className="font-display text-lg font-extrabold tracking-tight text-white sm:text-xl">
             SARAH
           </span>
-          <span className="text-[9px] font-bold text-brand-gold uppercase tracking-[0.2em] font-sans mt-0.5">
+          <span className="type-label mt-1 text-brand-gold tracking-[0.18em]">
             TRAVELS BD
           </span>
         </span>

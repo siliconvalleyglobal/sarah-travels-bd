@@ -5,18 +5,18 @@ import { Search, MapPin, Calendar } from "lucide-react";
 import { DESTINATIONS } from "@/lib/hotels-data";
 import { GuestRoomPicker, type GuestConfig } from "@/components/GuestRoomPicker";
 import {
-  AgodaAccommodationForm,
+  SarahAccommodationForm,
   defaultCheckIn,
   defaultCheckOut,
   type StayMode,
-} from "@/components/marketing/agoda-shared";
+} from "@/components/marketing/sarah-booking-shared";
 
 interface HotelSearchBarProps {
   initialCity?: string;
   initialCheckIn?: string;
   initialCheckOut?: string;
   initialGuests?: GuestConfig;
-  variant?: "hero" | "compact" | "ota" | "agoda";
+  variant?: "hero" | "compact" | "ota" | "sarah";
   onSearch?: (params: { city: string; checkIn: string; checkOut: string; guests: GuestConfig }) => void;
 }
 
@@ -34,7 +34,7 @@ export function HotelSearchBar({
   const [checkIn, setCheckIn] = useState(initialCheckIn || defaultCheckIn());
   const [checkOut, setCheckOut] = useState(initialCheckOut || defaultCheckOut());
   const [guests, setGuests] = useState<GuestConfig>(initialGuests);
-  const [agodaStayMode, setAgodaStayMode] = useState<StayMode>("overnight");
+  const [sarahStayMode, setSarahStayMode] = useState<StayMode>("overnight");
   const destRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,11 +68,11 @@ export function HotelSearchBar({
     }
   }
 
-  if (variant === "agoda") {
+  if (variant === "sarah") {
     return (
-      <AgodaAccommodationForm
-        stayMode={agodaStayMode}
-        onStayModeChange={setAgodaStayMode}
+      <SarahAccommodationForm
+        stayMode={sarahStayMode}
+        onStayModeChange={setSarahStayMode}
         propertyType="hotels"
         onSubmit={
           onSearch

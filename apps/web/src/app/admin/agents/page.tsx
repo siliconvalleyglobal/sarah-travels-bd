@@ -20,13 +20,16 @@ interface Agent {
 
 export default function AdminAgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [error, setError] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState({ creditLimit: 0, commissionRate: 0, isApproved: false });
 
   function load() {
     const token = getToken();
     if (!token) { window.location.href = "/login"; return; }
-    api<Agent[]>("/admin/agents", { token }).then(setAgents);
+    api<Agent[]>("/admin/agents", { token })
+      .then(setAgents)
+      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load agents"));
   }
 
   useEffect(() => { load(); }, []);
@@ -54,8 +57,12 @@ export default function AdminAgentsPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold">Agents</h2>
-      <p className="mt-1 text-gray-600">Approve agents and manage credit limits.</p>
+      <h2 className="type-page-title">Agents</h2>
+      <p className="type-lead mt-2">Approve agents and manage credit limits.</p>
+
+      {error && (
+        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</div>
+      )}
 
       <div className="mt-6 space-y-4">
         {agents.length === 0 ? (

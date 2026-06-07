@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { ChevronDown, Minus, Plus } from "lucide-react";
+import { Calendar, ChevronDown, Minus, Plus, Search, Users } from "lucide-react";
 import { DESTINATIONS } from "@/lib/hotels-data";
 import type { GuestConfig } from "@/components/GuestRoomPicker";
-import { AgodaTabIcon } from "./agoda-icons";
+import { SarahTabIcon } from "./sarah-booking-icons";
 
-export const AGODA_BLUE = "#2283DF";
-export const AGODA_BLUE_HOVER = "#1a6fc7";
-export const AGODA_BORDER = "#dfe0e4";
+export const SARAH_BOOKING_ACCENT = "#2283DF";
+export const SARAH_BOOKING_ACCENT_HOVER = "#1a6fc7";
+export const SARAH_BOOKING_BORDER = "#dfe0e4";
 
-export type AgodaTabId =
+export type SarahBookingTabId =
   | "hotels"
   | "homes"
   | "flight-hotel"
@@ -21,21 +21,22 @@ export type AgodaTabId =
 export type StayMode = "overnight" | "dayuse";
 export type TripType = "oneway" | "roundtrip";
 
-export const AGODA_TABS: {
-  id: AgodaTabId;
+export const SARAH_BOOKING_TABS: {
+  id: SarahBookingTabId;
   label: string;
+  shortLabel?: string;
   badge?: string;
   bundleLabel?: string;
 }[] = [
   { id: "hotels", label: "Hotels" },
-  { id: "homes", label: "Homes & Apts" },
-  { id: "flight-hotel", label: "Flight + Hotel", bundleLabel: "Bundle & Save" },
+  { id: "homes", label: "Homes & Apts", shortLabel: "Homes" },
+  { id: "flight-hotel", label: "Flight + Hotel", shortLabel: "Fly+Hotel", bundleLabel: "Bundle & Save" },
   { id: "flights", label: "Flights", badge: "New!" },
-  { id: "activities", label: "Activities" },
-  { id: "transfers", label: "Airport transfer" },
+  { id: "activities", label: "Activities", shortLabel: "Tours" },
+  { id: "transfers", label: "Airport transfer", shortLabel: "Transfers" },
 ];
 
-const RECENT_KEY = "agoda-recent-destinations";
+const RECENT_KEY = "sarah-recent-destinations";
 
 export function defaultCheckIn() {
   const d = new Date();
@@ -49,7 +50,7 @@ export function defaultCheckOut() {
   return d.toISOString().split("T")[0];
 }
 
-export function formatAgodaStayDate(iso: string) {
+export function formatStayDate(iso: string) {
   const d = new Date(`${iso}T12:00:00`);
   return {
     main: d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }),
@@ -57,13 +58,23 @@ export function formatAgodaStayDate(iso: string) {
   };
 }
 
-export function formatAgodaFlightDate(iso: string) {
+export function formatFlightDate(iso: string) {
   const d = new Date(`${iso}T12:00:00`);
   return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
 }
 
-export const agodaInputClass =
-  "w-full bg-transparent text-[15px] font-normal text-[#333] placeholder:text-[#9ca3af] focus:outline-none";
+/** Agoda-like field text: 17px Inter, #333 primary */
+export const sarahBookingInputClass =
+  "w-full bg-transparent text-[17px] font-normal leading-snug text-[#333] placeholder:text-[15px] placeholder:text-[#9ca3af] focus:outline-none";
+
+export const sarahBookingValueClass =
+  "text-[17px] font-semibold leading-snug text-[#333]";
+
+export const sarahBookingMetaClass =
+  "text-sm leading-snug text-[#717171]";
+
+export const sarahBookingLabelClass =
+  "text-[13px] font-semibold uppercase tracking-wide text-[#9ca3af]";
 
 function saveRecentDestination(name: string) {
   try {
@@ -83,53 +94,132 @@ function loadRecentDestinations(): string[] {
   }
 }
 
-export function AgodaTabBar({
+export function SarahTabBar({
   active,
   onChange,
 }: {
-  active: AgodaTabId;
-  onChange: (id: AgodaTabId) => void;
+  active: SarahBookingTabId;
+  onChange: (id: SarahBookingTabId) => void;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const tabRefs = useRef<Partial<Record<SarahBookingTabId, HTMLButtonElement>>>({});
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const updateScrollHint = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollRight(el.scrollWidth - el.scrollLeft - el.clientWidth > 8);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    updateScrollHint();
+    el.addEventListener("scroll", updateScrollHint, { passive: true });
+    window.addEventListener("resize", updateScrollHint);
+    return () => {
+      el.removeEventListener("scroll", updateScrollHint);
+      window.removeEventListener("resize", updateScrollHint);
+    };
+  }, [updateScrollHint]);
+
+  useEffect(() => {
+    tabRefs.current[active]?.scrollIntoView({
+      behavior: "smooth",
+      inline: "center",
+      block: "nearest",
+    });
+    updateScrollHint();
+  }, [active, updateScrollHint]);
+
   return (
-    <div className="flex overflow-x-auto border-b border-[#e8e8e8]">
-      {AGODA_TABS.map((tab) => {
-        const isActive = active === tab.id;
-        return (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => onChange(tab.id)}
-            className="relative flex min-w-[88px] flex-1 flex-col items-center px-2 pb-0 pt-4 transition sm:min-w-[100px]"
-          >
-            {tab.bundleLabel && (
-              <span className="mb-0.5 text-[10px] font-bold leading-none text-[#7c3aed]">
-                {tab.bundleLabel}
-              </span>
-            )}
-            <AgodaTabIcon id={tab.id} active={isActive} />
-            <span
-              className="mt-1.5 flex items-center gap-1 pb-3 text-[11px] font-semibold sm:text-xs"
-              style={{ color: isActive ? AGODA_BLUE : "#717171" }}
+    <div className="relative border-b border-[#e8e8e8]">
+      <div
+        ref={scrollRef}
+        className="grid grid-cols-3 divide-x divide-y divide-[#e8e8e8] sm:flex sm:divide-y-0 sm:snap-x sm:snap-mandatory sm:scroll-px-3 sm:overflow-x-auto sm:scroll-smooth sm:pr-4 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {SARAH_BOOKING_TABS.map((tab) => {
+          const isActive = active === tab.id;
+          return (
+            <button
+              key={tab.id}
+              ref={(node) => {
+                if (node) tabRefs.current[tab.id] = node;
+              }}
+              type="button"
+              onClick={() => onChange(tab.id)}
+              className="relative flex min-h-[104px] flex-col items-center justify-center px-2 py-4 transition touch-manipulation sm:min-h-[112px] sm:w-[124px] sm:shrink-0 sm:snap-center md:min-h-[116px] md:flex-1 md:min-w-[118px] md:max-w-[168px]"
             >
-              {tab.label}
-              {tab.badge && (
-                <span className="rounded-sm bg-[#e12d2d] px-1 py-px text-[8px] font-bold uppercase leading-none text-white">
-                  {tab.badge}
+              {tab.bundleLabel && (
+                <span className="mb-1 text-[11px] font-bold leading-none text-[#7c3aed]">
+                  {tab.bundleLabel}
                 </span>
               )}
-            </span>
-            <span
-              className="absolute bottom-0 left-2 right-2 h-[3px] rounded-t-sm transition"
-              style={{ backgroundColor: isActive ? AGODA_BLUE : "transparent" }}
-            />
-          </button>
-        );
-      })}
+              <SarahTabIcon id={tab.id} active={isActive} />
+              <span
+                className="mt-2 flex max-w-full flex-col items-center gap-1 text-center text-[13px] font-semibold leading-snug sm:text-sm"
+                style={{ color: isActive ? SARAH_BOOKING_ACCENT : "#717171" }}
+              >
+                <span className="line-clamp-2 px-0.5">{tab.label}</span>
+                {tab.badge && (
+                  <span className="rounded-sm bg-[#e12d2d] px-1.5 py-0.5 text-[10px] font-bold uppercase leading-none text-white">
+                    {tab.badge}
+                  </span>
+                )}
+              </span>
+              <span
+                className="absolute bottom-0 left-2 right-2 h-[3px] rounded-t-sm transition"
+                style={{ backgroundColor: isActive ? SARAH_BOOKING_ACCENT : "transparent" }}
+              />
+            </button>
+          );
+        })}
+      </div>
+
+      {canScrollRight && (
+        <div
+          className="pointer-events-none absolute bottom-0 right-0 top-0 hidden w-10 items-center justify-end bg-gradient-to-l from-white via-white/90 to-transparent pr-1 sm:flex md:hidden"
+          aria-hidden
+        >
+          <ChevronDown className="h-4 w-4 -rotate-90 text-[#9ca3af]" />
+        </div>
+      )}
     </div>
   );
 }
 
-export function AgodaUnderlineToggle<T extends string>({
+export function SarahPillToggle<T extends string>({
+  options,
+  value,
+  onChange,
+  labels,
+}: {
+  options: T[];
+  value: T;
+  onChange: (v: T) => void;
+  labels: Record<T, string>;
+}) {
+  return (
+    <div className="mb-4 flex flex-wrap gap-2">
+      {options.map((opt) => (
+        <button
+          key={opt}
+          type="button"
+          onClick={() => onChange(opt)}
+          className="rounded-full border px-5 py-2.5 text-[15px] font-semibold transition sm:text-base"
+          style={{
+            borderColor: value === opt ? SARAH_BOOKING_ACCENT : SARAH_BOOKING_BORDER,
+            color: value === opt ? SARAH_BOOKING_ACCENT : "#333",
+          }}
+        >
+          {labels[opt]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function SarahUnderlineToggle<T extends string>({
   options,
   value,
   onChange,
@@ -147,10 +237,10 @@ export function AgodaUnderlineToggle<T extends string>({
           key={opt}
           type="button"
           onClick={() => onChange(opt)}
-          className="border-b-2 pb-1.5 text-sm font-semibold transition"
+          className="border-b-2 pb-2 text-[15px] font-semibold transition sm:text-base"
           style={{
-            color: value === opt ? AGODA_BLUE : "#717171",
-            borderBottomColor: value === opt ? AGODA_BLUE : "transparent",
+            color: value === opt ? SARAH_BOOKING_ACCENT : "#717171",
+            borderBottomColor: value === opt ? SARAH_BOOKING_ACCENT : "transparent",
           }}
         >
           {labels[opt]}
@@ -160,27 +250,29 @@ export function AgodaUnderlineToggle<T extends string>({
   );
 }
 
-export function AgodaFieldRow({
+export function SarahFieldRow({
   children,
   searchLabel,
+  searchShortLabel,
 }: {
   children: React.ReactNode;
   searchLabel: string;
+  searchShortLabel?: string;
 }) {
   return (
     <div
-      className="flex flex-col overflow-hidden rounded-md bg-white md:min-h-[76px] md:flex-row md:items-stretch"
-      style={{ border: `1px solid ${AGODA_BORDER}` }}
+      className="flex flex-col overflow-hidden rounded-lg bg-white md:min-h-[96px] md:flex-row md:items-stretch"
+      style={{ border: `1px solid ${SARAH_BOOKING_BORDER}` }}
     >
       <div className="flex flex-1 flex-col md:flex-row md:divide-x md:divide-[#dfe0e4]">
         {children}
       </div>
-      <AgodaSearchButton label={searchLabel} />
+      <SarahSearchButton label={searchLabel} shortLabel={searchShortLabel} />
     </div>
   );
 }
 
-export function AgodaField({
+export function SarahField({
   label,
   children,
   className = "",
@@ -191,11 +283,11 @@ export function AgodaField({
 }) {
   return (
     <div
-      className={`flex min-w-0 flex-1 flex-col justify-center border-b px-5 py-4 last:border-b-0 md:border-b-0 ${className}`}
-      style={{ borderColor: AGODA_BORDER }}
+      className={`flex min-w-0 flex-1 flex-col justify-center border-b px-5 py-4 last:border-b-0 sm:px-6 sm:py-5 md:border-b-0 ${className}`}
+      style={{ borderColor: SARAH_BOOKING_BORDER }}
     >
       {label && (
-        <span className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-[#9ca3af]">
+        <span className={`mb-1.5 ${sarahBookingLabelClass}`}>
           {label}
         </span>
       )}
@@ -204,25 +296,39 @@ export function AgodaField({
   );
 }
 
-export function AgodaSearchButton({ label }: { label: string }) {
+export function SarahSearchButton({ label, shortLabel }: { label: string; shortLabel?: string }) {
+  const compact = shortLabel ?? label;
   return (
     <button
       type="submit"
-      className="flex w-full shrink-0 items-center justify-center px-6 py-4 text-sm font-bold tracking-wider text-white transition md:w-[110px] md:px-0 md:py-0 lg:w-[120px]"
-      style={{ backgroundColor: AGODA_BLUE }}
+      className="flex min-h-[56px] w-full shrink-0 touch-manipulation items-center justify-center px-6 py-4 text-[15px] font-bold uppercase tracking-[0.06em] text-white transition md:min-h-[96px] md:w-[148px] md:px-4 md:text-base md:py-0"
+      style={{ backgroundColor: SARAH_BOOKING_ACCENT }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = AGODA_BLUE_HOVER;
+        e.currentTarget.style.backgroundColor = SARAH_BOOKING_ACCENT_HOVER;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = AGODA_BLUE;
+        e.currentTarget.style.backgroundColor = SARAH_BOOKING_ACCENT;
       }}
+    >
+      <span className="md:hidden">{compact}</span>
+      <span className="hidden md:inline">{label}</span>
+    </button>
+  );
+}
+
+export function SarahSearchButtonWide({ label }: { label: string }) {
+  return (
+    <button
+      type="submit"
+      className="mt-5 flex w-full touch-manipulation items-center justify-center rounded-full py-4 text-[15px] font-bold uppercase tracking-[0.12em] text-white transition hover:opacity-95 sm:mt-6 sm:py-[1.125rem] sm:text-base"
+      style={{ backgroundColor: SARAH_BOOKING_ACCENT }}
     >
       {label}
     </button>
   );
 }
 
-export function AgodaDateField({
+export function SarahDateField({
   value,
   onChange,
   min,
@@ -231,12 +337,12 @@ export function AgodaDateField({
   onChange: (v: string) => void;
   min?: string;
 }) {
-  const { main, sub } = formatAgodaStayDate(value);
+  const { main, sub } = formatStayDate(value);
   return (
     <label className="relative block cursor-pointer">
       <div className="pointer-events-none">
-        <div className="text-[15px] font-semibold text-[#333]">{main}</div>
-        <div className="text-xs text-[#717171]">{sub}</div>
+        <div className={sarahBookingValueClass}>{main}</div>
+        <div className={sarahBookingMetaClass}>{sub}</div>
       </div>
       <input
         type="date"
@@ -250,7 +356,7 @@ export function AgodaDateField({
   );
 }
 
-export function AgodaFlightDateField({
+export function SarahFlightDateField({
   value,
   onChange,
   min,
@@ -261,8 +367,8 @@ export function AgodaFlightDateField({
 }) {
   return (
     <label className="relative block cursor-pointer">
-      <div className="pointer-events-none text-[15px] font-semibold text-[#333]">
-        {formatAgodaFlightDate(value)}
+      <div className={`pointer-events-none ${sarahBookingValueClass}`}>
+        {formatFlightDate(value)}
       </div>
       <input
         type="date"
@@ -276,7 +382,7 @@ export function AgodaFlightDateField({
   );
 }
 
-export function AgodaCounterField({
+export function SarahCounterField({
   label,
   value,
   onChange,
@@ -312,11 +418,11 @@ export function AgodaCounterField({
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between text-left"
       >
-        <span className="text-[15px] font-semibold text-[#333]">{display}</span>
+        <span className={sarahBookingValueClass}>{display}</span>
         <ChevronDown className={`h-4 w-4 shrink-0 text-[#9ca3af] transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 min-w-[200px] rounded-lg border border-[#dfe0e4] bg-white p-4 shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 w-full min-w-0 rounded-lg border border-[#dfe0e4] bg-white p-4 shadow-xl sm:left-auto sm:right-0 sm:w-auto sm:min-w-[200px]">
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-[#333]">{label}</span>
             <div className="flex items-center gap-3">
@@ -343,12 +449,14 @@ export function AgodaCounterField({
   );
 }
 
-export function AgodaGuestField({
+export function SarahGuestField({
   value,
   onChange,
+  compact = false,
 }: {
   value: GuestConfig;
   onChange: (v: GuestConfig) => void;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -376,18 +484,24 @@ export function AgodaGuestField({
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between text-left"
       >
-        <div>
-          <div className="text-[15px] font-semibold text-[#333]">
-            {value.adults} adult{value.adults > 1 ? "s" : ""}
+        {compact ? (
+          <span className={sarahBookingValueClass}>
+            {value.adults} adult{value.adults !== 1 ? "s" : ""}, {value.rooms} room{value.rooms !== 1 ? "s" : ""}
+          </span>
+        ) : (
+          <div>
+            <div className={sarahBookingValueClass}>
+              {value.adults} adult{value.adults > 1 ? "s" : ""}
+            </div>
+            <div className={sarahBookingMetaClass}>
+              {value.rooms} room{value.rooms > 1 ? "s" : ""}
+            </div>
           </div>
-          <div className="text-xs text-[#717171]">
-            {value.rooms} room{value.rooms > 1 ? "s" : ""}
-          </div>
-        </div>
+        )}
         <ChevronDown className={`h-4 w-4 shrink-0 text-[#9ca3af] transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 min-w-[280px] rounded-lg border border-[#dfe0e4] bg-white p-4 shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 w-full min-w-0 rounded-lg border border-[#dfe0e4] bg-white p-4 shadow-xl sm:left-auto sm:right-0 sm:w-auto sm:min-w-[280px]">
           {(["rooms", "adults", "children"] as const).map((field) => (
             <div key={field} className="mb-3 flex items-center justify-between last:mb-0">
               <span className="text-sm font-semibold capitalize text-[#333]">{field}</span>
@@ -402,7 +516,7 @@ export function AgodaGuestField({
               </div>
             </div>
           ))}
-          <button type="button" onClick={() => setOpen(false)} className="mt-3 w-full rounded-md py-2.5 text-xs font-bold text-white" style={{ backgroundColor: AGODA_BLUE }}>
+          <button type="button" onClick={() => setOpen(false)} className="mt-3 w-full rounded-md py-2.5 text-xs font-bold text-white" style={{ backgroundColor: SARAH_BOOKING_ACCENT }}>
             Done
           </button>
         </div>
@@ -411,7 +525,7 @@ export function AgodaGuestField({
   );
 }
 
-export function AgodaPassengerField({
+export function SarahPassengerField({
   passengers,
   cabin,
   onPassengersChange,
@@ -435,12 +549,12 @@ export function AgodaPassengerField({
 
   return (
     <div ref={ref} className="relative">
-      <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between text-left text-[15px] font-semibold text-[#333]">
-        <span>{passengers} Passenger{passengers > 1 ? "s" : ""}, {cabin}</span>
+      <button type="button" onClick={() => setOpen(!open)} className={`flex w-full min-w-0 items-center justify-between gap-2 text-left ${sarahBookingValueClass}`}>
+        <span className="truncate">{passengers} Passenger{passengers > 1 ? "s" : ""}, {cabin}</span>
         <ChevronDown className={`h-4 w-4 shrink-0 text-[#9ca3af] transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 min-w-[260px] rounded-lg border border-[#dfe0e4] bg-white p-4 shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-50 mt-2 w-full min-w-0 rounded-lg border border-[#dfe0e4] bg-white p-4 shadow-xl sm:left-auto sm:right-0 sm:w-auto sm:min-w-[260px]">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-sm font-semibold text-[#333]">Passengers</span>
             <div className="flex items-center gap-3">
@@ -459,7 +573,7 @@ export function AgodaPassengerField({
             <option value="Business">Business</option>
             <option value="First">First</option>
           </select>
-          <button type="button" onClick={() => setOpen(false)} className="mt-3 w-full rounded-md py-2.5 text-xs font-bold text-white" style={{ backgroundColor: AGODA_BLUE }}>
+          <button type="button" onClick={() => setOpen(false)} className="mt-3 w-full rounded-md py-2.5 text-xs font-bold text-white" style={{ backgroundColor: SARAH_BOOKING_ACCENT }}>
             Done
           </button>
         </div>
@@ -468,12 +582,12 @@ export function AgodaPassengerField({
   );
 }
 
-export function AgodaDestinationField({
+export function SarahDestinationField({
   value,
   onChange,
   onSelect,
   onFocusChange,
-  placeholder = "Begin typing property name or keyword to search, use arrow keys or tab key to navigate, press Enter to select",
+  placeholder = "Search city, hotel or area",
 }: {
   value: string;
   onChange: (v: string) => void;
@@ -556,12 +670,12 @@ export function AgodaDestinationField({
           }
         }}
         placeholder={placeholder}
-        className={agodaInputClass}
+        className={sarahBookingInputClass}
         aria-label="Destination"
         autoComplete="off"
       />
       {open && items.length > 0 && (
-        <div className="absolute left-0 right-0 top-full z-[60] mt-1 max-h-56 divide-y divide-slate-100 overflow-y-auto rounded-md border border-[#dfe0e4] bg-white shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-[60] mt-1 max-h-56 divide-y divide-slate-100 overflow-y-auto overscroll-contain rounded-md border border-[#dfe0e4] bg-white shadow-xl">
           {showRecents && (
             <div className="bg-[#f5f8fc] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-[#717171]">
               Recent searches
@@ -586,7 +700,7 @@ export function AgodaDestinationField({
   );
 }
 
-export function AgodaAccommodationForm({
+export function SarahAccommodationForm({
   stayMode,
   onStayModeChange,
   showStayToggle = true,
@@ -609,7 +723,7 @@ export function AgodaAccommodationForm({
   const [destInput, setDestInput] = useState("");
   const [checkIn, setCheckIn] = useState(defaultCheckIn());
   const [checkOut, setCheckOut] = useState(defaultCheckOut());
-  const [guests, setGuests] = useState<GuestConfig>({ rooms: 1, adults: 2, children: 0 });
+  const [guests, setGuests] = useState<GuestConfig>({ rooms: 1, adults: 1, children: 0 });
   const [addFlight, setAddFlight] = useState(false);
   const [flightOrigin, setFlightOrigin] = useState("");
 
@@ -638,7 +752,7 @@ export function AgodaAccommodationForm({
       }}
     >
       {showStayToggle && (
-        <AgodaUnderlineToggle
+        <SarahPillToggle
           options={["overnight", "dayuse"] as StayMode[]}
           value={stayMode}
           onChange={onStayModeChange}
@@ -646,55 +760,79 @@ export function AgodaAccommodationForm({
         />
       )}
 
-      <AgodaFieldRow searchLabel="SEARCH">
-        <AgodaField className="flex-[2.5] md:min-w-[220px] lg:min-w-[300px]">
-          <AgodaDestinationField
-            value={destInput}
-            onChange={setDestInput}
-            onSelect={setDestination}
-            onFocusChange={onFocusChange}
-          />
-        </AgodaField>
+      <div
+        className="overflow-hidden rounded-lg bg-white"
+        style={{ border: `1px solid ${SARAH_BOOKING_BORDER}` }}
+      >
+        <div
+          className="flex items-center gap-4 px-4 py-4 sm:px-6 sm:py-5"
+          style={{ borderBottom: `1px solid ${SARAH_BOOKING_BORDER}` }}
+        >
+          <Search className="h-6 w-6 shrink-0 text-[#9ca3af]" strokeWidth={2} />
+          <div className="min-w-0 flex-1">
+            <SarahDestinationField
+              value={destInput}
+              onChange={setDestInput}
+              onSelect={setDestination}
+              onFocusChange={onFocusChange}
+            />
+          </div>
+        </div>
 
-        <AgodaField className="min-w-[128px]">
-          <AgodaDateField value={checkIn} onChange={setCheckIn} />
-        </AgodaField>
+        <div className="flex flex-col divide-y divide-[#dfe0e4] md:flex-row md:divide-x md:divide-y-0">
+          <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-4 sm:px-6 sm:py-5">
+            <Calendar className="h-6 w-6 shrink-0 text-[#9ca3af]" strokeWidth={2} />
+            <div className="min-w-0 flex-1">
+              <SarahDateField value={checkIn} onChange={setCheckIn} />
+            </div>
+          </div>
 
-        {stayMode === "overnight" && (
-          <AgodaField className="min-w-[128px]">
-            <AgodaDateField value={checkOut} onChange={setCheckOut} min={checkIn} />
-          </AgodaField>
-        )}
+          {stayMode === "overnight" && (
+            <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-4 sm:px-6 sm:py-5">
+              <Calendar className="h-6 w-6 shrink-0 text-[#9ca3af]" strokeWidth={2} />
+              <div className="min-w-0 flex-1">
+                <SarahDateField value={checkOut} onChange={setCheckOut} min={checkIn} />
+              </div>
+            </div>
+          )}
+
+          <div className="flex min-w-0 flex-1 items-center gap-3 px-4 py-4 sm:px-6 sm:py-5">
+            <Users className="h-6 w-6 shrink-0 text-[#9ca3af]" strokeWidth={2} />
+            <div className="min-w-0 flex-1">
+              <SarahGuestField value={guests} onChange={setGuests} compact />
+            </div>
+          </div>
+        </div>
 
         {addFlight && showAddFlight && (
-          <AgodaField label="Flying from" className="min-w-[140px]">
+          <div
+            className="flex flex-col gap-2 px-3 py-3.5 sm:flex-row sm:items-center sm:gap-3 sm:px-4 sm:py-4"
+            style={{ borderTop: `1px solid ${SARAH_BOOKING_BORDER}` }}
+          >
+            <span className="shrink-0 text-xs font-semibold uppercase tracking-wide text-[#9ca3af]">Flying from</span>
             <input
               type="text"
               value={flightOrigin}
               onChange={(e) => setFlightOrigin(e.target.value)}
               placeholder="City or airport"
-              className={agodaInputClass}
+              className={sarahBookingInputClass}
             />
-          </AgodaField>
+          </div>
         )}
-
-        <AgodaField className="min-w-[118px]">
-          <AgodaGuestField value={guests} onChange={setGuests} />
-        </AgodaField>
-      </AgodaFieldRow>
+      </div>
 
       {showAddFlight && (
-        <label className="mt-4 flex cursor-pointer items-center gap-2.5 text-sm text-[#333]">
-          <input
-            type="checkbox"
-            checked={addFlight}
-            onChange={(e) => setAddFlight(e.target.checked)}
-            className="h-[18px] w-[18px] rounded border-[#ccc]"
-            style={{ accentColor: AGODA_BLUE }}
-          />
-          Add a flight
-        </label>
+        <button
+          type="button"
+          onClick={() => setAddFlight(!addFlight)}
+          className="mt-3 text-[15px] font-semibold transition hover:underline"
+          style={{ color: SARAH_BOOKING_ACCENT }}
+        >
+          {addFlight ? "− Remove flight" : "+ Add a flight"}
+        </button>
       )}
+
+      <SarahSearchButtonWide label="SEARCH" />
     </form>
   );
 }

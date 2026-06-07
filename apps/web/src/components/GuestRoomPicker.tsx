@@ -12,7 +12,7 @@ export interface GuestConfig {
 interface GuestRoomPickerProps {
   value: GuestConfig;
   onChange: (config: GuestConfig) => void;
-  variant?: "dark" | "light" | "agoda";
+  variant?: "dark" | "light" | "sarah";
   className?: string;
 }
 
@@ -33,7 +33,7 @@ export function GuestRoomPicker({ value, onChange, variant = "light", className 
   const btnClass =
     variant === "dark"
       ? "bg-brand-navy/60 border-white/20 text-white"
-      : variant === "agoda"
+      : variant === "sarah"
         ? "border-0 bg-transparent p-0 text-sm font-medium text-slate-900 shadow-none"
         : "bg-white border-slate-200 text-slate-900";
 
@@ -50,10 +50,10 @@ export function GuestRoomPicker({ value, onChange, variant = "light", className 
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className={`w-full flex items-center justify-between gap-2 border rounded-lg px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-brand-gold transition ${btnClass} ${variant === "agoda" ? "rounded-none px-0 py-0" : ""}`}
+        className={`w-full flex items-center justify-between gap-2 border rounded-lg px-3 py-2.5 text-sm font-semibold focus:outline-none focus:border-brand-gold transition ${btnClass} ${variant === "sarah" ? "rounded-none px-0 py-0" : ""}`}
       >
-        <span className={`flex items-center gap-2 truncate ${variant === "agoda" ? "gap-0" : ""}`}>
-          {variant !== "agoda" && <Users className="h-4 w-4 shrink-0 text-brand-gold" />}
+        <span className={`flex items-center gap-2 truncate ${variant === "sarah" ? "gap-0" : ""}`}>
+          {variant !== "sarah" && <Users className="h-4 w-4 shrink-0 text-brand-gold" />}
           <span className="truncate">{label}</span>
         </span>
         <ChevronDown className={`h-4 w-4 shrink-0 text-slate-400 transition ${open ? "rotate-180" : ""}`} />

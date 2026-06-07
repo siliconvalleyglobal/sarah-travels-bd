@@ -1,62 +1,53 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { clearToken } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { LayoutDashboard, List, Plane, Wallet } from "lucide-react";
+import { EnterpriseShell } from "@/components/enterprise-shell";
+import { getToken, getTokenRole, redirectToLogin } from "@/lib/auth";
 
 const nav = [
-  { href: "/agent/dashboard", label: "Dashboard" },
-  { href: "/agent/bookings", label: "My Bookings" },
-  { href: "/agent/bookings/flights", label: "Book Flight" },
-  { href: "/agent/wallet", label: "Wallet" },
+  { href: "/agent/dashboard", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/agent/bookings", label: "My Bookings", icon: List },
+  { href: "/agent/bookings/flights", label: "Book Flight", icon: Plane },
+  { href: "/agent/wallet", label: "Wallet", icon: Wallet },
 ];
 
 export function AgentShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      redirectToLogin(pathname);
+      return;
+    }
+    const role = getTokenRole();
+    if (role !== "AGENT" && role !== "SUB_AGENT" && role !== "ADMIN" && role !== "SUPER_ADMIN") {
+      window.location.href = "/account";
+      return;
+    }
+    setReady(true);
+  }, [pathname]);
+
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f0f4f8] text-sm text-slate-500">
+        Loading agent portal…
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link href="/" className="font-bold text-brand-700">Travel</Link>
-            <span className="text-gray-400">/</span>
-            <span className="font-semibold">Agent Portal</span>
-          </div>
-          <button
-            onClick={() => { clearToken(); window.location.href = "/login"; }}
-            className="text-sm text-gray-500 hover:text-gray-700"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
-
-      <div className="mx-auto flex max-w-6xl gap-8 px-6 py-8">
-        <aside className="hidden w-44 shrink-0 md:block">
-          <nav className="space-y-1">
-            {nav.map((item) => {
-              const active = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "block rounded-lg px-3 py-2 text-sm font-medium",
-                    active
-                      ? "bg-brand-600 text-white"
-                      : "text-gray-700 hover:bg-gray-200",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
-        <main className="min-w-0 flex-1">{children}</main>
-      </div>
-    </div>
+    <EnterpriseShell
+      portal="agent"
+      portalLabel="B2B Agent Portal"
+      nav={nav}
+      userName="Demo Agent"
+      userEmail="agent@travel.com"
+    >
+      {children}
+    </EnterpriseShell>
   );
 }

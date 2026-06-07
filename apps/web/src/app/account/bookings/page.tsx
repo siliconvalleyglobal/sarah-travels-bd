@@ -9,8 +9,7 @@ import {
   Info, Hotel, Compass, Car, Loader2
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
-import { AppShell } from "@/components/AppShell";
-import { PageHero } from "@/components/PageHero";
+import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { api } from "@/lib/api";
 import { getToken } from "@/lib/auth";
 
@@ -308,18 +307,14 @@ export default function BookingsPortal() {
   }
 
   return (
-    <AppShell>
-      <PageHero
-        badge="Secure Session"
+    <div className="space-y-6">
+      <DashboardHeader
         title="My Bookings"
         subtitle="Manage PNRs, confirmation codes, tickets, and NBR-compliant VAT invoices."
-        compact
+        badge="Secure Session"
       />
 
-      <main className="mx-auto max-w-6xl w-full px-4 py-8 sm:px-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div className="hidden" />
-          
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           {/* Filters */}
           <div className="flex bg-slate-200 rounded-xl p-1 border overflow-x-auto max-w-full scrollbar-none">
             {(["ALL", "FLIGHT", "HOTEL", "TOUR", "CAR", "VISA", "UMRAH"] as const).map(type => (
@@ -644,7 +639,6 @@ export default function BookingsPortal() {
           </div>
         )}
 
-      </main>
-    </AppShell>
+    </div>
   );
 }

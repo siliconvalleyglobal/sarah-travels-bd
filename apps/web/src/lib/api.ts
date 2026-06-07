@@ -11,11 +11,18 @@ export async function api<T>(
     ...(fetchOptions.headers ?? {}),
   };
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...fetchOptions,
-    headers,
-    ...(fetchOptions.method ? {} : { cache: "no-store" }),
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...fetchOptions,
+      headers,
+      ...(fetchOptions.method ? {} : { cache: "no-store" }),
+    });
+  } catch {
+    throw new Error(
+      `Cannot reach API at ${API_URL}. Start the backend with \`pnpm dev\` from the project root.`,
+    );
+  }
 
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: res.statusText }));

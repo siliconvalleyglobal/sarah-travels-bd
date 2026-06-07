@@ -1,14 +1,8 @@
-const ROW_A = [
-  "Flight Search", "Hotel Booking", "Visa Application", "Umrah Packages", "Tour Packages",
-  "Car Transfers", "bKash Payments", "Nagad Checkout", "SSLCommerz", "NBR VAT Invoice",
-  "PNR Generation", "Installment Plans",
-] as const;
+"use client";
 
-const ROW_B = [
-  "Amadeus API", "Agoda Hotels", "Viator Tours", "Document Upload", "Photo Cropper",
-  "My Bookings", "Agent Portal", "Passport Scanner", "B2B Wallet", "Confirmation Codes",
-  "ATAB Registered", "IATA Certified",
-] as const;
+import { useLanguage } from "@/components/LanguageProvider";
+import { marquee } from "@/lib/i18n/translations";
+import { pick } from "@/lib/i18n/types";
 
 function MarqueeRow({ items, reverse }: { items: readonly string[]; reverse?: boolean }) {
   const doubled = [...items, ...items];
@@ -29,17 +23,20 @@ function MarqueeRow({ items, reverse }: { items: readonly string[]; reverse?: bo
 }
 
 export function TravelMarquee() {
+  const { lang } = useLanguage();
+
   return (
     <section className="st-reveal border-b border-slate-200 bg-slate-50 py-12 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 text-center sm:px-6">
         <h2 className="font-display text-2xl font-extrabold text-brand-navy sm:text-3xl">
-          Built for <span className="gradient-text">modern travel</span>
+          {pick(lang, marquee.titleLead)}
+          <span className="gradient-text">{pick(lang, marquee.titleHighlight)}</span>
         </h2>
-        <p className="mt-2 text-sm text-slate-500">Enterprise integrations · Transparent pricing · Full booking lifecycle</p>
+        <p className="mt-2 text-sm text-slate-500">{pick(lang, marquee.subtitle)}</p>
       </div>
       <div className="mt-8 space-y-2">
-        <MarqueeRow items={ROW_A} />
-        <MarqueeRow items={ROW_B} reverse />
+        <MarqueeRow items={marquee.rowA[lang]} />
+        <MarqueeRow items={marquee.rowB[lang]} reverse />
       </div>
     </section>
   );
