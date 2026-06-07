@@ -3,7 +3,7 @@ set -e
 
 echo "Running database schema push..."
 cd /app/packages/database
-npx prisma db push --skip-generate
+npx prisma db push
 
 if [ "${RAILWAY_RUN_SEED:-false}" = "true" ]; then
   echo "Seeding database..."
