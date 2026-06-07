@@ -1,0 +1,17 @@
+# Sarah Travels BD — Railway monorepo (GitHub deploy)
+#
+# Create ONE Railway project, then add 3 services from the same GitHub repo:
+#
+# 1. PostgreSQL  → Railway plugin "Add PostgreSQL"
+# 2. API         → Root: /  | Config: railway.api.toml  | Dockerfile.api
+# 3. Web         → Root: /  | Config: railway.web.toml  | Dockerfile.web
+#
+# API env vars:
+#   DATABASE_URL      = ${{Postgres.DATABASE_URL}}
+#   JWT_SECRET        = (long random string)
+#   WEB_URL           = https://<web-service>.up.railway.app
+#   RAILWAY_RUN_SEED  = true   (first deploy only, then set false)
+#
+# Web env vars:
+#   NEXT_PUBLIC_API_URL  = https://<api-service>.up.railway.app/api/v1
+#   NEXT_PUBLIC_SITE_URL = https://<web-service>.up.railway.app

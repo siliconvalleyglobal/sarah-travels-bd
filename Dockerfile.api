@@ -1,0 +1,32 @@
+FROM node:20-bookworm-slim AS base
+RUN apt-get update -y && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN corepack enable && corepack prepare pnpm@11.5.2 --activate
+WORKDIR /app
+
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/api/package.json ./apps/api/
+COPY packages/database/package.json ./packages/database/
+RUN pnpm install --frozen-lockfile
+
+FROM deps AS builder
+COPY packages/database ./packages/database
+COPY apps/api ./apps/api
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
+RUN pnpm --filter @travel/database exec prisma generate
+RUN pnpm --filter @travel/database build
+RUN pnpm --filter @travel/api build
+
+FROM base AS runner
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+COPY --from=builder /app/apps/api/package.json ./apps/api/
+COPY --from=builder /app/packages/database ./packages/database
+COPY scripts/railway-api-start.sh ./scripts/railway-api-start.sh
+RUN chmod +x ./scripts/railway-api-start.sh
+
+EXPOSE 4000
+CMD ["./scripts/railway-api-start.sh"]

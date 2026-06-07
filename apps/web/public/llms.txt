@@ -1,0 +1,26 @@
+# Sarah Travels BD
+
+> Bangladesh's IATA & ATAB certified online travel agency for flights, hotels, visa, Umrah, tours and car rentals.
+
+Sarah Travels BD (Sarah Travels Bangladesh) helps customers in Bangladesh book international flights, hotel stays, visa applications, Umrah/Hajj packages, guided tours, and airport transfers. Payments supported via bKash, Nagad, SSLCommerz and cards (sandbox in development).
+
+## Core services
+
+- Flights: /flights — Search DAC and regional airports to Middle East, Asia, Europe
+- Hotels: /hotels — Stays in Mecca, Dubai, Cox's Bazar and worldwide
+- Visa: /visa — Saudi Arabia, UAE, Malaysia, Thailand, USA visa guidance & apply
+- Umrah: /umrah — Economy to Premium packages with installment plans
+- Tours: /tours — Cox's Bazar, Sundarbans, Sylhet, Maldives
+- Cars: /cars — Airport pickup and transfers (DAC, CGP, JED, DXB)
+
+## Key facts
+
+- Brand: Sarah Travels BD
+- Market: Bangladesh (BDT pricing)
+- Certifications: IATA, ATAB registered OTA
+- Languages: English and Bengali UI
+
+## Optional
+
+Full sitemap: /sitemap.xml
+Robots: /robots.txt

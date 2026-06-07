@@ -1,0 +1,28 @@
+FROM node:20-bookworm-slim AS base
+RUN corepack enable && corepack prepare pnpm@11.5.2 --activate
+WORKDIR /app
+
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/web/package.json ./apps/web/
+RUN pnpm install --frozen-lockfile
+
+FROM deps AS builder
+COPY apps/web ./apps/web
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+RUN pnpm --filter @travel/web build
+
+FROM base AS runner
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package.json /app/pnpm-lock.yaml /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/apps/web ./apps/web
+
+WORKDIR /app/apps/web
+EXPOSE 3000
+ENV PORT=3000
+CMD ["pnpm", "start"]
